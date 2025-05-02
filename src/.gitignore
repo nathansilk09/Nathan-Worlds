@@ -1,0 +1,58 @@
+# C++ compiled object files
+*.o
+*.obj
+
+# Compiled static and dynamic libraries
+*.lib
+*.a
+*.la
+*.lo
+*.dll
+*.so
+*.dylib
+
+# Executable files
+*.exe
+*.out
+*.app
+
+# CMake build directory
+/build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Visual Studio Code settings
+.vscode/
+
+# Code::Blocks
+*.depend
+*.layout
+*.cbp
+
+# QtCreator
+*.pro.user
+*.qbs.user
+*.autosave
+
+# Backup files
+*~
+*.swp
+*.bak
+*.tmp
+
+# Logs and debug files
+*.log
+*.gch
+*.pch
+
+# Coverage and testing
+*.gcda
+*.gcno
+*.gcov
+
+# Other IDEs
+.idea/
+*.sublime-workspace
+*.sublime-project
