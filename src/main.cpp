@@ -59,9 +59,6 @@ void drawButtons() {
     Brain.Screen.printAt(275, 80, "Stake");
     Brain.Screen.printAt(395, 80, "Stake");
 
-    // Show current selection
-    // Brain.Screen.setCursor(3, 2);
-    // Brain.Screen.print("Current Selection: %d", autonSelection);
 }
 
 void drawButtons_Red() {
@@ -85,9 +82,6 @@ void drawButtons_Red() {
     Brain.Screen.printAt(275, 80, "No_Ring");
     Brain.Screen.printAt(395, 80, "No_Both");
 
-    // Show current selection
-    // Brain.Screen.setCursor(3, 2);
-    // Brain.Screen.print("Current Selection: %d", autonSelection);
 }
 
 void drawButtons_Blue() {
@@ -111,9 +105,6 @@ void drawButtons_Blue() {
     Brain.Screen.printAt(275, 80, "No_Ring");
     Brain.Screen.printAt(395, 80, "No_Both");
 
-    // Show current selection
-    // Brain.Screen.setCursor(3, 2);
-    // Brain.Screen.print("Current Selection: %d", autonSelection);
 }
 
 // Function to detect button presses
@@ -602,6 +593,16 @@ void nazi_intake(int hue, bool sleep) {
 
 }
 
+void ultra_nazi_intake(int hue, bool sleep) {
+  
+  if (d1.objectDistance(inches) < 3){
+    scoring_system.stop();
+  }
+  else {
+    scoring_system.spin(fwd, -12, volt);  
+  }
+
+}
 
 
 void nazi_intake_opp(int hue, bool sleep) {
@@ -751,6 +752,84 @@ void drive(float inches, bool intake_auton) {
   right_chassis.stop();                 
                  
 }     
+
+// Drives in a straight line a given distance
+void ultra_nazi_drive(float inches, bool intake_auton) {                 
+
+  accumulated_error = 0;
+  time_spent_running = 0;
+  finished = false;               
+  start_average_position = trackingwheel();                 
+  float average_position = start_average_position;                 
+  desired_heading = reduce_0_to_360(get_absolute_heading());                 
+  float distance = -inches; // Distance robot will be driving               
+  base_max_voltage = drive_max_voltage;                 
+  base_kd = drive_kd;                 
+  base_ki = drive_ki;                 
+  base_kp = drive_kp;                 
+  base_starti = drive_starti;                 
+  base_settle_error = drive_settle_error;                 
+  base_settle_time = drive_settle_time;                 
+  base_timeout = drive_timeout;                 
+  previous_twa = tw.angle();
+  right_chassis.setStopping(hold);
+  left_chassis.setStopping(hold);
+  b = 0;
+  r = 0;
+  boolb = false;
+  boolr = false;  
+
+  // All of that is just effectively resetting values and making sure the PID values matches the drive PID values 
+
+  // Start of the loop     
+  while (!finished) {                 
+    
+    // Updates tracking wheel rotations
+    if(previous_twa - tw.angle() > 100) {
+
+      twm += 1;
+
+    }          
+    else if (previous_twa - tw.angle() < -100) {
+
+      twm += -1;
+
+    }   
+
+    previous_twa = tw.angle();                 
+    average_position = trackingwheel();        
+    float drive_error = distance + start_average_position - average_position; // Distance to the target           
+    float heading_error = reduce_negative_180_to_180(desired_heading - get_absolute_heading()); // Amount inertial sensor has been thrown off            
+    float drive_output = compute(drive_error); // PID'ed number
+    is_finished(); // Checks if it can cut out the loop
+
+    // Updates heading PID values
+    if (heading_error <= heading_starti) {                                  
+      heading_accumulated_error += 10;                                  
+    }                          
+    if (heading_error*heading_previous_error < 0) {                                
+      heading_accumulated_error = 0;                                
+    }                                   
+    float heading_output = heading_kp*heading_error + heading_ki*heading_accumulated_error + heading_kd*(heading_error-heading_previous_error);                 
+    heading_previous_error = heading_error; 
+
+    drive_output = clamp(drive_output, -drive_max_voltage, drive_max_voltage); // Clamps drive voltage
+    heading_output = clamp(heading_output, -heading_max_voltage, heading_max_voltage); // Clamps heading voltage
+                    
+    drive_with_voltage((drive_output + heading_output), (drive_output - heading_output)); // Drives with calculated voltages
+
+    // If intake_auton is true the robot will intake excluding opponents colour
+    if (intake_auton){
+      ultra_nazi_intake(opponent, false);        
+    }
+    vex::task::sleep(10);                 
+                 
+  }                 
+                 
+  left_chassis.stop();                 
+  right_chassis.stop();                 
+                 
+}    
 
 // Drives in a straight line a given distance
 void drive_chain_cutout(float inches, float chainout, bool intake_auton) {                 
@@ -964,10 +1043,10 @@ void drive_with_arm(float inches, bool intake_auton) {
     }   
 
     if (arm.angle() < 310 && arm.angle() > 100){
-      side_stakes.spin(fwd, -6.5, volt);
+      side_stakes.spin(fwd, -6.8, volt);
     }
     else if (arm.angle() > 317 or arm.angle() < 100){
-      side_stakes.spin(fwd, 6.5, volt);
+      side_stakes.spin(fwd, 6.8, volt);
     }
     else {
       side_stakes.stop();
@@ -1473,37 +1552,36 @@ void autonomous(void) {
 
   switch (autonSelection) {
 
-    case 1:
-    // Blue ring
+    case 100:
+    // Blue ring    `
       turn_settle_time = 10; opponent = 10; drive_timeout = 600; wait(10, vex::timeUnits::msec); // Setting stuff
       drive_with_arm(-7, false); // Drive to stake, lift arm
       side_stakes.spin(fwd, -12, volt); wait(.2, seconds); side_stakes.setStopping(coast); pneumaticC.set(true); drive_timeout = 300; // Score preload, lift intake
       drive(4, true); side_stakes.stop(); drive_timeout = 900; // Drive away from stake
       turn(-43.5, true); // Turn to raised ring
-      drive_max_voltage = 3; nazi_drive(12, true); drive_max_voltage = 12; pneumaticC.set(false); // Pick up raised ring, drop intake
+      drive_max_voltage = 3; nazi_drive(12, true); drive_max_voltage = 12;  pneumaticC.set(false); // Pick up raised ring, drop intake
       drive_timeout = 1500; nazi_turn(-137, true); // Turn to stake
       nazi_drive(-22, true); // Approach stake
       drive_with_clamp(-16, false, .4); // Drive into and clamp stake
-      drive(5.5, true); // Align with centre
+      drive(5.4, true); // Align with centre
       turn(-41, true); pneumaticC.set(true); hook_chain.stop(); // Turn to centre, lift intake, stop hook chain
       wait(200, vex::timeUnits::msec); drive(20.5, false); pneumaticE.set(true); wait(.1, seconds); // Drive to centre, lower arm
-      drive(-24, false); pneumaticC.set(false); pneumaticE.set(false); // Back out, drop intake, raise arm
+      drive(-24, false); wait(.1, seconds); pneumaticC.set(false); pneumaticE.set(false); // Back out, drop intake, raise arm
       left_swing(48, true); // Swing into ring
       turn(52, true); // Turn to 4
-      drive(5.5, true);   // Drive to 4
+      drive(5.1, true);   // Drive to 4
       swing_max_voltage = 12; cust_left_swing(90, true, .25); // Swing into 4
       turn(90, true); // Align
       drive_timeout = 400; drive_max_voltage = 10; drive(4, true); // D1 4
-      drive(7, true); drive_max_voltage = 4; drive(7, true); drive_timeout = 1500; drive_max_voltage = 12; // D2 4
+      drive(7, true); drive_max_voltage = 4; drive(8.5, true); drive_timeout = 1500; drive_max_voltage = 12; // D2 4
       cust_left_swing(57, true, .4); flex_wheel.spin(fwd, 12, volt); // Swing out of 4, reverse intake
       turn_timeout = 500; turn(115,  false); // Turn to final ring
-      drive(13, true); // Approach final ring
-      drive(7, true); // Pick up final ring
+      drive_timeout = 600; drive(13, true); drive(7, true); // Pick up final ring
       turn(95.5, true); // Turn to ladder
-      hook_chain.setStopping(coast); drive_kd = 9; drive_chain_cutout(-40, .5, true); // Drive into ladder
+      drive_timeout = 1500; hook_chain.setStopping(coast); drive_kd = 9; drive_chain_cutout(-40, .5, true); // Drive into ladder
       break;
 
-    case 2:
+    case 3:
     // Blue ring with no ring
       turn_settle_time = 10; opponent = 10; drive_timeout = 600; wait(10, vex::timeUnits::msec); // Setting stuff
       drive_with_arm(-7, false); // Drive to stake, lift arm
@@ -1531,7 +1609,7 @@ void autonomous(void) {
       hook_chain.setStopping(coast); drive_kd = 9; drive_chain_cutout(-40, .5, true); // Drive into ladder
       break;
 
-    case 3:
+    case 2:
     // Blue ring no stake
       drive_kd = 0; drive_kp = 1; drive_settle_time = 5; drive(-2.2, false); drive_settle_time = 10; drive_kd = 4; drive_kp = .7; opponent = 10;                   
       turn(-43.5, false); // Turn to raised ring  
@@ -1543,15 +1621,15 @@ void autonomous(void) {
       drive_with_clamp(-16, false, .4); // Drive into and clamp stake
       drive(5.5, true); // Align with centre
       turn(-41, true); pneumaticC.set(true); hook_chain.stop(); // Turn to centre, lift intake, stop hook chain
-      wait(200, vex::timeUnits::msec); drive(20.5, false); pneumaticE.set(true); wait(.1, seconds); // Drive to centre, lower arm
+      wait(200, vex::timeUnits::msec); drive(20.7, false); pneumaticE.set(true); wait(.3, seconds); // Drive to centre, lower arm
       drive(-24, false); pneumaticC.set(false); pneumaticE.set(false); // Back out, drop intake, raise arm
       left_swing(48, true); // Swing into ring
       turn(52, true); // Turn to 4
-      drive(6, true);   // Drive to 4
+      drive(5.5, true);   // Drive to 4
       swing_max_voltage = 12; cust_left_swing(90, true, .25); // Swing into 4
       turn(90, true); // Align
       drive_timeout = 400; drive_max_voltage = 10; drive(4, true); // D1 4
-      drive(7, true); drive_max_voltage = 3; drive(10, true); drive_timeout = 1500; drive_max_voltage = 12; // D2 4
+      drive(7, true); drive_max_voltage = 3; drive(12, true); drive_timeout = 1500; drive_max_voltage = 12; // D2 4
       cust_left_swing(57, true, .4); flex_wheel.spin(fwd, 12, volt); // Swing out of 4, reverse intake
       turn_timeout = 500; turn(115,  false); // Turn to final ring
       drive(10, true); // Approach final ring
@@ -1584,7 +1662,7 @@ void autonomous(void) {
       hook_chain.setStopping(coast); drive_kd = 9; drive_chain_cutout(-40, .5, true); // Drive into ladder
       break;
      
-    case 5:
+    case 1:
      // Red ring
       turn_settle_time = 10; opponent = 200; drive_timeout = 600; wait(10, vex::timeUnits::msec); // Setting stuff
       drive_with_arm(-7, false); // Drive to stake, lift arm
@@ -1614,7 +1692,7 @@ void autonomous(void) {
       hook_chain.setStopping(coast); drive_kd = 9; drive_chain_cutout(-40, .5, true); // Drive into ladder
       break;
 
-    case 6:
+    case 7:
     // Red ring with no ring
       turn_settle_time = 10; opponent = 200; drive_timeout = 600; wait(10, vex::timeUnits::msec); // Setting stuff
       drive_with_arm(-7, false); // Drive to stake, lift arm
@@ -1642,7 +1720,7 @@ void autonomous(void) {
       hook_chain.setStopping(coast); drive_kd = 9; drive_chain_cutout(-40, .5, true); // Drive into ladder
       break;
 
-    case 7:
+    case 6:
     // Red ring with no stake
       drive_kd = 0; drive_kp = 1; drive_settle_time = 5; drive(-2.2, false); drive_settle_time = 10; drive_kd = 4; drive_kp = .7; opponent = 200;            
       turn(43.5, false); // Turn to raised ring  
@@ -1654,15 +1732,15 @@ void autonomous(void) {
       drive_with_clamp(-16, false, .4); // Drive into and clamp stake
       drive(5.5, true); // Align with centre
       turn(41, true); pneumaticC.set(true); hook_chain.stop(); // Turn to centre, lift intake, stop hook chain
-      wait(200, vex::timeUnits::msec); drive(20.5, false); pneumaticH.set(true); wait(.1, seconds); // Drive to centre, lower arm
+      wait(200, vex::timeUnits::msec); drive(20.6, false); pneumaticH.set(true); wait(.3, seconds); // Drive to centre, lower arm
       drive(-24, false); pneumaticC.set(false); pneumaticH.set(false); // Back out, drop intake, raise arm
       right_swing(-48, true); // Swing into ring
       turn(-52, true); // Turn to 4
-      drive(6, true);   // Drive to 4
+      drive(5.5, true);   // Drive to 4
       swing_max_voltage = 12; cust_right_swing(-90, true, .25); // Swing into 4
       turn(-90, true); // Align
       drive_timeout = 400; drive_max_voltage = 10; drive(4, true); // D1 4
-      drive(7, true); drive_max_voltage = 3; drive(10, true); drive_timeout = 1500; drive_max_voltage = 12; // D2 4
+      drive(7, true); drive_max_voltage = 3; drive(12, true); drive_timeout = 1500; drive_max_voltage = 12; // D2 4
       cust_right_swing(-57, true, .4); flex_wheel.spin(fwd, 12, volt); // Swing out of 4, reverse intake
       turn_timeout = 500; turn(-115,  false); // Turn to final ring
       drive(10, true); // Approach final ring
@@ -1678,7 +1756,7 @@ void autonomous(void) {
       drive_with_clamp(-16.5, false, .4); // Drive into and clamp stake
       drive(10, true);
       turn(44, true); pneumaticC.set(true); hook_chain.stop(); // Turn to centre, lift intake, stop hook chain
-      wait(200, vex::timeUnits::msec); drive(25.5, false); pneumaticH.set(true); wait(.1, seconds); // Drive to centre, lower arm
+      wait(200, vex::timeUnits::msec); drive(26, false); pneumaticH.set(true); wait(.3, seconds); // Drive to centre, lower arm
       drive(-24, false); pneumaticC.set(false); pneumaticH.set(false); // Back out, drop intake, raise arm
       right_swing(-48, true); // Swing into ring
       turn(-52, true); // Turn to 4
@@ -1727,37 +1805,41 @@ void autonomous(void) {
       drive(20, true);
       break;
 
-    case 10:
+    case 11:
     // Red stake with no ring
       turn_settle_time = 10; opponent = 200; drive_timeout = 600; wait(10, vex::timeUnits::msec); // Setting stuff
       drive_with_arm(-7, false); // Drive to stake, lift arm
+      
       side_stakes.spin(fwd, -12, volt); wait(.2, seconds); side_stakes.setStopping(coast); pneumaticC.set(true); drive_timeout = 300; // Score preload, lift intake
       drive(4, true); side_stakes.stop(); drive_timeout = 900; // Drive away from stake
       turn_settle_time = 70; turn(-155, true); turn_settle_time = 10; // Turn to stake
       drive(-25, true); // Approach stake
       drive_with_clamp(-16, false, .4); // Drive into and clamp stake
       drive(5.8, true);
-      turn(-44, true); pneumaticC.set(true); hook_chain.stop(); // Turn to centre, lift intake, stop hook chain
-      wait(200, vex::timeUnits::msec); drive(20, false); pneumaticE.set(true); wait(.1, seconds); // Drive to centre, lower arm
+      turn(-43.5, true); pneumaticC.set(true); hook_chain.stop(); // Turn to centre, lift intake, stop hook chain
+      wait(200, vex::timeUnits::msec); drive(20.4, false); pneumaticE.set(true); wait(.1, seconds); // Drive to centre, lower arm
       drive(-24, false); pneumaticC.set(false); pneumaticE.set(false); // Back out, drop intake, raise arm
       left_swing(0, true); // Swing into ring
       turn(95, true); // Face bottom ring
       drive(27, true); // Drive into bottom ring
       turn(180, true);
       drive(34, true);
-      turn(105, true);
+      turn(112, true);
       pneumaticA.set(true);
       pneumaticE.set(true);
       texecute_wait(.2);
       drive(5, true);
       turn(-24, true);
       pneumaticE.set(false);
-      drive(50, true);
-      drive_max_voltage = 6;
-      drive(20, true);
+      drive(40, true);
+
+      turn(-140, true);
+
+      // drive_max_voltage = 6;
+      // drive(20, true);
       break;
 
-    case 11:
+    case 10:
     // Red stake with no stake
       drive_kd = 0; drive_kp = 1; drive_settle_time = 5; drive(-2.2, false); drive_settle_time = 10; drive_kd = 4; drive_kp = .7; opponent = 200;                   
       turn(-43.5, false); // Turn to raised ring  
@@ -1776,16 +1858,17 @@ void autonomous(void) {
       drive(27, true); // Drive into bottom ring
       turn(180, true);
       drive(34, true);
-      turn(105, true);
+      turn(110, true);
       pneumaticA.set(true);
       pneumaticE.set(true);
       texecute_wait(.2);
       drive(5, true);
-      turn(-24, true);
+      turn_settle_time = 50; 
+      turn(-26, true);
       pneumaticE.set(false);
-      drive(50, true);
-      drive_max_voltage = 6;
-      drive(20, true);
+      drive(40, true);
+
+      turn(-140, true);
       break;
 
     case 12:
@@ -1794,24 +1877,29 @@ void autonomous(void) {
       drive(-20, false);
       drive_with_clamp(-16.5, false, .4); // Drive into and clamp stake
       drive(10, true);
-      turn(-44, true); pneumaticC.set(true); hook_chain.stop(); // Turn to centre, lift intake, stop hook chain
-      wait(200, vex::timeUnits::msec); drive(25.5, false); pneumaticE.set(true); wait(.1, seconds); // Drive to centre, lower arm
-      drive(-24, false); pneumaticC.set(false); pneumaticE.set(false); // Back out, drop intake, raise arm
+      turn(-42.5, true); pneumaticC.set(true); hook_chain.stop(); // Turn to centre, lift intake, stop hook chain
+      wait(200, vex::timeUnits::msec); drive(26, false); pneumaticE.set(true); wait(.3, seconds); // Drive to centre, lower arm
+      drive(-24, false); pneumaticC.set(false); pneumaticE.set(false); wait(.3, seconds); // Back out, drop intake, raise arm
       left_swing(0, true); // Swing into ring
       turn(95, true); // Face bottom ring
       drive(27, true); // Drive into bottom ring
       turn(180, true);
       drive(34, true);
-      turn(105, true);
+      turn(110, true);
       pneumaticA.set(true);
       pneumaticE.set(true);
       texecute_wait(.2);
       drive(5, true);
-      turn(-24, true);
+      turn_settle_time = 50; 
+      turn(-26, true);
       pneumaticE.set(false);
-      drive(50, true);
-      drive_max_voltage = 6;
-      drive(20, true);
+      drive(40, true);
+
+      turn(-140, true);
+
+      // drive_max_voltage = 6;
+      // drive(20, true);
+      break;
 
     case 13:
     // Blue stake
@@ -1845,7 +1933,7 @@ void autonomous(void) {
       drive(20, true);
       break;
 
-    case 14:
+    case 15:
     // Blue ring stake no ring
       turn_settle_time = 10; opponent = 10; drive_timeout = 600; wait(10, vex::timeUnits::msec); // Setting stuff
       drive_with_arm(-7, false); // Drive to stake, lift arm
@@ -1875,7 +1963,7 @@ void autonomous(void) {
       drive(20, true);
       break;
 
-    case 15:
+    case 14:
     // Blue stake no stake
       drive_kd = 0; drive_kp = 1; drive_settle_time = 5; drive(-2.2, false); drive_settle_time = 10; drive_kd = 4; drive_kp = .7; opponent = 10;                   
       turn(43.5, false); // Turn to raised ring  
@@ -1913,23 +2001,25 @@ void autonomous(void) {
       drive_with_clamp(-16.5, false, .4); // Drive into and clamp stake
       drive(10, true);
       turn(44, true); pneumaticC.set(true); hook_chain.stop(); // Turn to centre, lift intake, stop hook chain
-      wait(200, vex::timeUnits::msec); drive(25.5, false); pneumaticH.set(true); wait(.1, seconds); // Drive to centre, lower arm
+      wait(200, vex::timeUnits::msec); drive(26.3, false); pneumaticH.set(true); wait(.1, seconds); // Drive to centre, lower arm
       drive(-24, false); pneumaticC.set(false); pneumaticH.set(false); // Back out, drop intake, raise arm
       right_swing(0, true); // Swing into ring
       turn(-95, true); // Face bottom ring
       drive(27, true); // Drive into bottom ring
       turn(180, true);
-      drive(34, true);
-      turn(-105, true);
+      drive_timeout = 1500;
+      drive(38, true);
+      turn(-110, true);
       pneumaticA.set(true);
       pneumaticH.set(true);
-      texecute_wait(.2);
-      drive(5, true);
+      texecute_wait(.5);
+      drive(6, true);
       turn(24, true);
-      pneumaticH.set(false);
-      drive(50, true);
-      drive_max_voltage = 6;
-      drive(20, true);
+      pneumaticH.set(false);      
+      drive(40, true);
+      turn(140, true);
+      // drive_max_voltage = 6;
+      // drive(20, true);
       break;
 
     case 17:
