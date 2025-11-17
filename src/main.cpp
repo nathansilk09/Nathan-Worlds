@@ -8,9 +8,11 @@
 /*----------------------------------------------------------------------------*/                 
                  
 #include <cmath>
-#include "tank.cpp"
                  
-using namespace vex;          
+#include "vex.h"
+#include "tank.h"
+
+using namespace vex;      
                  
 // A global instance of competition                 
 competition Competition;                 

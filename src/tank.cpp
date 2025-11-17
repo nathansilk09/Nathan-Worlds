@@ -1,8 +1,9 @@
-#include "vex.h"                 
 #include <cmath>
+                 
+#include "vex.h"
+#include "tank.h"
 
-using namespace vex;          
-
+using namespace vex;  
 
 // If input is below min width set it to zero
 float deadband(float input, float width){                 
