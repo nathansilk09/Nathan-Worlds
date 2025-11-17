@@ -10,6 +10,7 @@
 #include <cmath>
                  
 #include "vex.h"
+#include "intake.h"
 #include "tank.h"
 
 using namespace vex;      
@@ -790,6 +791,9 @@ void autonomous(void) {
     Brain.Screen.setCursor(2, 2);
     
     drive();
+    intakemove();
+
+    Brain.Screen.print(deadband(controller(primary).Axis3.value(), 5));
 
     wait(20, msec); // Sleep the task for a short amount of time to                 
                     // prevent wasted resources.                 

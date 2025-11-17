@@ -18,43 +18,43 @@ float to_volt(float percent){
   return(percent*12.0/100.0);                 
 }    
 
-float leftthrottle = deadband(controller(primary).Axis3.value(), 5);
-float rightthrottle = deadband(controller(primary).Axis2.value(), 5);
-
 void drive() {
 
-    if (!Controller1.ButtonL2.pressing() && !Controller1.ButtonA.pressing()){
+  float leftthrottle = deadband(controller(primary).Axis3.value(), 5);
+  float rightthrottle = deadband(controller(primary).Axis2.value(), 5);
 
-        right_chassis.spin(fwd, to_volt(rightthrottle), volt);
-        left_chassis.spin(fwd, to_volt(leftthrottle), volt);
+  if (!Controller1.ButtonL2.pressing() && !Controller1.ButtonA.pressing()){
 
-    }
+    right_chassis.spin(fwd, to_volt(rightthrottle), volt);
+    left_chassis.spin(fwd, to_volt(leftthrottle), volt);
 
-    else if (Controller1.ButtonL2.pressing() && !Controller1.ButtonA.pressing()){
+  }
 
-        right_chassis.spin(fwd, to_volt(rightthrottle), volt);
-        left_chassis.spin(fwd, to_volt(leftthrottle), volt);
+  else if (Controller1.ButtonL2.pressing() && !Controller1.ButtonA.pressing()){
 
-    }
+    right_chassis.spin(fwd, to_volt(rightthrottle), volt);
+    left_chassis.spin(fwd, to_volt(leftthrottle), volt);
 
-    else {
+  }
 
-        left_chassis.stop();
-        right_chassis.stop();
+  else {
 
-    }
+    left_chassis.stop();
+    right_chassis.stop();
 
-    if(Controller1.ButtonA.pressing()){
+  }
 
-        right_chassis.setStopping(hold);
-        left_chassis.setStopping(hold);
+  if(Controller1.ButtonA.pressing()){
 
-    }
+    right_chassis.setStopping(hold);
+    left_chassis.setStopping(hold);
 
-    else {
+  }
+
+  else {
    
-        left_chassis.setStopping(coast);
-        right_chassis.setStopping(coast);
+    left_chassis.setStopping(coast);
+    right_chassis.setStopping(coast);
 
-    } 
+  } 
 }
