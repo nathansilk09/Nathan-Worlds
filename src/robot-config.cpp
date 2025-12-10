@@ -16,7 +16,7 @@ motor_group left_chassis = motor_group(LF, LM, LR);
 motor_group right_chassis = motor_group(RF, RM, RR);
 controller Controller1 = controller(primary); 
 inertial inertial_main = inertial(PORT2);
-motor intake = motor(PORT10, ratio6_1, true);
+motor intake = motor(PORT9, ratio18_1, false);
 
 
 

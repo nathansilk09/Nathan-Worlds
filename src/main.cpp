@@ -784,6 +784,8 @@ void autonomous(void) {
 /*---------------------------------------------------------------------------*/                 
  void usercontrol(void) {                 
 
+  intake.spin(fwd);
+
   while (1) {           
 
 
@@ -793,7 +795,7 @@ void autonomous(void) {
     drive();
     intakemove();
 
-    Brain.Screen.print(deadband(controller(primary).Axis3.value(), 5));
+    // Brain.Screen.print();
 
     wait(20, msec); // Sleep the task for a short amount of time to                 
                     // prevent wasted resources.                 

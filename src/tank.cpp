@@ -25,15 +25,15 @@ void drive() {
 
   if (!Controller1.ButtonL2.pressing() && !Controller1.ButtonA.pressing()){
 
-    right_chassis.spin(fwd, to_volt(rightthrottle), volt);
-    left_chassis.spin(fwd, to_volt(leftthrottle), volt);
+    right_chassis.spin(fwd, to_volt(rightthrottle*.8), volt);
+    left_chassis.spin(fwd, to_volt(leftthrottle*.8), volt);
 
   }
 
   else if (Controller1.ButtonL2.pressing() && !Controller1.ButtonA.pressing()){
 
-    right_chassis.spin(fwd, to_volt(rightthrottle), volt);
-    left_chassis.spin(fwd, to_volt(leftthrottle), volt);
+    right_chassis.spin(fwd, to_volt(rightthrottle*.15), volt);
+    left_chassis.spin(fwd, to_volt(leftthrottle*.15), volt);
 
   }
 
