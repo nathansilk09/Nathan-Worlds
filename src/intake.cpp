@@ -14,7 +14,7 @@ if (Controller1.ButtonL1.pressing()){
     else {
         intake_toggle = 0;
     }
-    wait(.1, seconds);
+    wait(.3, seconds);
 }
 
 if (Controller1.ButtonR1.pressing()){
@@ -24,12 +24,12 @@ if (Controller1.ButtonR1.pressing()){
     else {
         intake_toggle = 0;
     }
-    wait(.1, seconds);
+    wait(.3, seconds);
 }
 
 if (Controller1.ButtonUp.pressing()){
     intake_toggle = 0;
-    wait(.1, seconds);
+    wait(.3, seconds);
 }
 
 if (intake_toggle == 1) {
