@@ -1,7 +1,7 @@
 #include <cmath>
                  
 #include "vex.h"
-#include "intake.h"
+#include "intake_outake.h"
 
 int intake_toggle = 0;
 
@@ -47,7 +47,7 @@ else {
 
 }
 
-void activate_outake(){
+void activateoutake(){
 
 if (Controller1.ButtonR2.pressing()){
     outake.setVelocity(100, percent);
@@ -58,5 +58,4 @@ else {
 }
 
 }
-
 using namespace vex;  

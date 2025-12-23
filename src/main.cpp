@@ -10,7 +10,8 @@
 #include <cmath>
                  
 #include "vex.h"
-#include "intake.h"
+#include "intake_outake.h"
+#include "Pnuematic.h"
 #include "tank.h"
 
 using namespace vex;      
@@ -794,8 +795,9 @@ void autonomous(void) {
     
     drive();
     intakemove();
-    activate_outake();
-
+    activateoutake();
+    pnuematicsgo();
+    
     // Brain.Screen.print();
 
     wait(20, msec); // Sleep the task for a short amount of time to                 

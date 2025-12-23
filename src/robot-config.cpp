@@ -18,6 +18,7 @@ controller Controller1 = controller(primary);
 inertial inertial_main = inertial(PORT2);
 motor intake = motor(PORT20, ratio18_1, false);
 motor outake = motor(PORT19, ratio18_1, true);
+digital_out PA = digital_out(Brain.ThreeWirePort.A);
 
 
 
