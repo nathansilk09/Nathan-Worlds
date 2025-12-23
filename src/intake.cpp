@@ -47,4 +47,16 @@ else {
 
 }
 
+void activate_outake(){
+
+if (Controller1.ButtonR2.pressing()){
+    outake.setVelocity(100, percent);
+}
+else {
+    outake.stop();
+    outake.setStopping(coast);
+}
+
+}
+
 using namespace vex;  

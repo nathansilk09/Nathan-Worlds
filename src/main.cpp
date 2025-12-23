@@ -794,6 +794,7 @@ void autonomous(void) {
     
     drive();
     intakemove();
+    activate_outake();
 
     // Brain.Screen.print();
 

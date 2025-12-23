@@ -17,6 +17,7 @@ extern inertial inertial_2;
 extern inertial inertial_4;
 extern inertial inertial_3;
 extern motor intake;
+extern motor outake;
 
 
 
