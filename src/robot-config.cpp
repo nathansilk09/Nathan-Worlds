@@ -6,9 +6,9 @@ using code = vision::code;
  
 // A global instance of brain used for printing to the V5 Brain screen 
 brain  Brain; 
-motor RF = motor(PORT1, ratio6_1, true);
-motor RM = motor(PORT2, ratio6_1, true); 
-motor RR = motor(PORT3, ratio6_1, true);  
+motor LF = motor(PORT1, ratio6_1, true);
+motor LM = motor(PORT2, ratio6_1, true); 
+motor LR = motor(PORT3, ratio6_1, true);  
 motor LF = motor(PORT11, ratio6_1, false);
 motor LM = motor(PORT12, ratio6_1, false); 
 motor LR = motor(PORT13, ratio6_1, false);

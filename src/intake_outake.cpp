@@ -50,7 +50,11 @@ else {
 void activateoutake(){
 
 if (Controller1.ButtonR2.pressing()){
+    outake.spin(forward);
     outake.setVelocity(100, percent);
+    // Brain.Screen.clearScreen();  
+    // Brain.Screen.setCursor(10,10);
+    // Brain.Screen.print("working");  
 }
 else {
     outake.stop();

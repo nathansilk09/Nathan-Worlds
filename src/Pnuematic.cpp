@@ -3,9 +3,9 @@
 #include "vex.h"
 #include "Pnuematic.h"
 
-bool BPA = true;
+bool BPA;
 
-void pnuematicsgo(){
+void pnuematicsgo(){  
 
 if (Controller1.ButtonUp.pressing() && !BPA) {
     BPA = true;
