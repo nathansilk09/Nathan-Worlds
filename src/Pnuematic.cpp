@@ -4,6 +4,7 @@
 #include "Pnuematic.h"
 
 bool BPA;
+bool BPB;
 
 void pnuematicsgo(){  
 
@@ -22,6 +23,22 @@ if (BPA) {
 else {
     PA.set(true);
 }   
+
+if (Controller1.ButtonUp.pressing() && !BPA) {
+    BPB = true;
+    wait(.2, seconds);
+}
+else if (Controller1.ButtonUp.pressing()){
+    BPB = false;
+    wait(.2, seconds);
+}
+
+if (BPA) {
+    PB.set(false);
+}
+else {
+    PB.set(true);
+}  
 
 }
 

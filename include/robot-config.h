@@ -19,6 +19,7 @@ extern inertial inertial_3;
 extern motor intake;
 extern motor outake;
 extern digital_out PA;
+extern digital_out PB;
 
 
 

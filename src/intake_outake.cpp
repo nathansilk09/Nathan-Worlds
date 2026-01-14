@@ -4,6 +4,7 @@
 #include "intake_outake.h"
 
 int intake_toggle = 0;
+int outake_toggle = 0;
 
 void intakemove(){
 
@@ -49,13 +50,39 @@ else {
 
 void activateoutake(){
 
-if (Controller1.ButtonR2.pressing()){
-    outake.spin(forward);
-    outake.setVelocity(100, percent);
-    // Brain.Screen.clearScreen();  
-    // Brain.Screen.setCursor(10,10);
-    // Brain.Screen.print("working");  
+if (Controller1.ButtonL2.pressing()){
+    if (outake_toggle != 1){
+        outake_toggle = 1;
+    }
+    else {
+        outake_toggle = 0;
+    }
+    wait(.3, seconds);
 }
+
+if (Controller1.ButtonR2.pressing()){
+    if (outake_toggle != 2){
+        outake_toggle = 2;
+    }
+    else {
+        outake_toggle = 0;
+    }
+    wait(.3, seconds);
+}
+
+if (Controller1.ButtonUp.pressing()){
+    outake_toggle = 0;
+    wait(.3, seconds);
+}
+
+if (outake_toggle == 1) {
+    outake.spin(fwd, -12, volt);
+}
+
+else if (outake_toggle == 2) {
+    outake.spin(fwd, 12, volt);
+}
+
 else {
     outake.stop();
     outake.setStopping(coast);
