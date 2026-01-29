@@ -205,14 +205,14 @@ float arm_degs;
                  
 bool finished = false; // Has the robot reached the target??         
                  
-float drive_max_voltage = 12;                 
+float drive_max_voltage = 10;                 
 float drive_kp = .5;                 
 float drive_ki = 0;                 
-float drive_kd = 2;                 
-float drive_starti = 15;                 
-float drive_settle_error = .5;                 
-float drive_settle_time = 50;                 
-float drive_timeout = 2000;   
+float drive_kd = 0;                 
+float drive_starti = 0;                 
+float drive_settle_error = .8;                 
+float drive_settle_time = 15;                 
+float drive_timeout = 1500;   
 
 float arm_max_voltage = 12;
 float arm_kp = .2;                 
@@ -225,12 +225,12 @@ float arm_timeout = 100000;
 float y = 0;
                  
 float turn_max_voltage = 12;                 
-float turn_kp = .37;                 
-float turn_ki = 0.003;                 
-float turn_kd = 3;                 
+float turn_kp = .2;                 
+float turn_ki = 0.01;                 
+float turn_kd = 2.5;                 
 float turn_starti = 1000;                 
-float turn_settle_error = 1;                 
-float turn_settle_time = 10;                 
+float turn_settle_error = .5;                 
+float turn_settle_time = 25;                 
 float turn_timeout = 400000;                 
                  
 float swing_max_voltage = 12;                 
@@ -395,7 +395,7 @@ void drive(float inches) {
   start_average_position = get_average_position_in();                 
   float average_position = start_average_position;                 
   desired_heading = reduce_0_to_360(get_absolute_heading());                 
-  float distance = -inches; // Distance robot will be driving               
+  float ddistance = inches; // Distance robot will be driving               
   base_max_voltage = drive_max_voltage;                 
   base_kd = drive_kd;                 
   base_ki = drive_ki;                 
@@ -417,8 +417,8 @@ void drive(float inches) {
     
     
     average_position = get_average_position_in();        
-    float drive_error = distance + start_average_position - average_position; // Distance to the target           
-    float heading_error = reduce_negative_180_to_180(desired_heading - get_absolute_heading()); // Amount inertial sensor has been thrown off            
+    float drive_error = ddistance + start_average_position - average_position; // Distance to the target           
+    float heading_error = reduce_negative_180_to_180(desired_heading - get_absolute_heading()); // Amount inertial sensor has been thrown off  
     float drive_output = compute(drive_error); // PID'ed number
     is_finished(); // Checks if it can cut out the loop
 
@@ -432,23 +432,32 @@ void drive(float inches) {
     float heading_output = heading_kp*heading_error + heading_ki*heading_accumulated_error + heading_kd*(heading_error-heading_previous_error);                 
     heading_previous_error = heading_error; 
 
+    Brain.Screen.setCursor(20, 20);
+    Brain.Screen.print(drive_error); 
+
     drive_output = clamp(drive_output, -drive_max_voltage, drive_max_voltage); // Clamps drive voltage
     heading_output = clamp(heading_output, -heading_max_voltage, heading_max_voltage); // Clamps heading voltage
                     
-    drive_with_voltage(-(drive_output + heading_output), -(drive_output - heading_output)); // Drives with calculated voltages
+    drive_with_voltage((drive_output + heading_output), (drive_output - heading_output)); // Drives with calculated voltages
     previous_error = average_position;
-    vex::task::sleep(10);                 
+
+    Brain.Screen.setCursor(10, 10);
+    Brain.Screen.print(drive_output);   
+
+    vex::task::sleep(10);      
+    Brain.Screen.clearScreen();
+           
                  
   }                 
                  
   left_chassis.stop();                 
-  right_chassis.stop();                 
+  right_chassis.stop();  
+  Brain.Screen.clearScreen();            
                  
 }     
 
 
 
-// Drives in a straight line a given distance
 void drive_with_target(float inches, float angle) {                 
 
   accumulated_error = 0;
@@ -456,8 +465,8 @@ void drive_with_target(float inches, float angle) {
   finished = false;               
   start_average_position = get_average_position_in();                 
   float average_position = start_average_position;                 
-  desired_heading = reduce_0_to_360(angle); // Sets desired angle to inputted angle              
-  float distance = -inches; // Distance robot will be driving               
+  desired_heading = angle;                 
+  float ddistance = inches; // Distance robot will be driving               
   base_max_voltage = drive_max_voltage;                 
   base_kd = drive_kd;                 
   base_ki = drive_ki;                 
@@ -468,19 +477,19 @@ void drive_with_target(float inches, float angle) {
   base_timeout = drive_timeout;                 
   right_chassis.setStopping(hold);
   left_chassis.setStopping(hold);
-  b = 0;
-  r = 0;
-  boolb = false;
-  boolr = false;  
+ 
 
   // All of that is just effectively resetting values and making sure the PID values matches the drive PID values 
 
   // Start of the loop     
   while (!finished) {                 
-
+    
+    // Updates tracking wheel rotations
+    
+    
     average_position = get_average_position_in();        
-    float drive_error = distance + start_average_position - average_position; // Distance to the target           
-    float heading_error = reduce_negative_180_to_180(desired_heading - get_absolute_heading()); // Amount inertial sensor has been thrown off            
+    float drive_error = ddistance + start_average_position - average_position; // Distance to the target           
+    float heading_error = reduce_negative_180_to_180(desired_heading - get_absolute_heading()); // Amount inertial sensor has been thrown off  
     float drive_output = compute(drive_error); // PID'ed number
     is_finished(); // Checks if it can cut out the loop
 
@@ -494,20 +503,30 @@ void drive_with_target(float inches, float angle) {
     float heading_output = heading_kp*heading_error + heading_ki*heading_accumulated_error + heading_kd*(heading_error-heading_previous_error);                 
     heading_previous_error = heading_error; 
 
+    Brain.Screen.setCursor(20, 20);
+    Brain.Screen.print(drive_error); 
+
     drive_output = clamp(drive_output, -drive_max_voltage, drive_max_voltage); // Clamps drive voltage
     heading_output = clamp(heading_output, -heading_max_voltage, heading_max_voltage); // Clamps heading voltage
                     
-    drive_with_voltage(-(drive_output + heading_output), -(drive_output - heading_output)); // Drives with calculated voltages
-
+    drive_with_voltage((drive_output + heading_output), (drive_output - heading_output)); // Drives with calculated voltages
     previous_error = average_position;
-    vex::task::sleep(10);                 
+
+    Brain.Screen.setCursor(10, 10);
+    Brain.Screen.print(drive_output);   
+
+    vex::task::sleep(10);      
+    Brain.Screen.clearScreen();
+           
                  
   }                 
                  
   left_chassis.stop();                 
-  right_chassis.stop();                 
+  right_chassis.stop();  
+  Brain.Screen.clearScreen();            
                  
-}   
+}            
+   
 
 //turns to given heading
 void turn(float tdegrees) {                 
@@ -542,8 +561,12 @@ void turn(float tdegrees) {
 
     is_finished(); // Checks if turn is finished 
 
-    drive_with_voltage(-turn_output, turn_output); // Turns with calculated voltages
-    vex::task::sleep(10);
+    drive_with_voltage(turn_output, -turn_output); // Turns with calculated voltages
+    Brain.Screen.setCursor(10, 10);
+    Brain.Screen.print(turn_error);   
+
+    vex::task::sleep(10);      
+    Brain.Screen.clearScreen();
 
   }                 
                  

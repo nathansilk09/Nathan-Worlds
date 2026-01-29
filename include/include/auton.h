@@ -24,3 +24,9 @@ void left_swing(float sdegrees);
 void cust_left_swing(float sdegrees, float mult);
 void cust_right_swing(float sdegrees, float mult);
 extern int autonSelection;
+void turn(float tdegrees);
+
+extern float drive_timeout;
+extern float drive_max_voltage;
+extern float heading_max_voltage;
+extern float drive_kp;

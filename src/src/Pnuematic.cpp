@@ -3,8 +3,8 @@
 #include "vex.h"
 #include "Pnuematic.h"
 
-bool BPA;
-bool BPB;
+bool BPA = true;
+bool BPB = true;
 
 void pnuematicsgo(){  
 

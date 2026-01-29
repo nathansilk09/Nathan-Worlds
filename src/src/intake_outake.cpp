@@ -8,7 +8,7 @@ int outake_toggle = 0;
 
 void intakemove(){
 
-if (Controller1.ButtonL1.pressing()){
+if (Controller1.ButtonR2.pressing()){
     if (intake_toggle != 1){
         intake_toggle = 1;
     }
@@ -60,7 +60,7 @@ if (Controller1.ButtonL2.pressing()){
     wait(.3, seconds);
 }
 
-if (Controller1.ButtonR2.pressing()){
+if (Controller1.ButtonL1.pressing()){
     if (outake_toggle != 2){
         outake_toggle = 2;
     }

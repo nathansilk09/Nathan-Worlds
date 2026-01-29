@@ -17,7 +17,9 @@ extern inertial inertial_2;
 extern inertial inertial_4;
 extern inertial inertial_3;
 extern motor intake;
-extern motor outake;
+extern motor outake_pt1;
+extern motor outake_pt2;
+extern motor_group outake;
 extern digital_out PA;
 extern digital_out PB;
 

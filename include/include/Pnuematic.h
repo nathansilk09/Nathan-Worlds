@@ -2,4 +2,5 @@
 
 void pnuematicsgo();
 
-
+extern bool BPB;
+extern bool BPA;
