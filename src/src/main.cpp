@@ -109,8 +109,33 @@ void autonomous(void) {
       left_swing(190);
       drive(60);
 
-    case 3: //Testing
-      drive(-24);
+    case 3: //GATEWAY RIGHT SIDE
+      drive(-3); // To clear of park zone, robot should be pependicular to 3 balls intake facing to the right
+      turn(-90); // To align with the balls
+      intake.spin(fwd, 12, volt); // Intake turned on
+      drive(36); // Priority here is not about getting three balls (one or two is fine), but instead aligning for next motion
+      wait(.2, seconds); // Give it a lil time to intake. Might want to drop lil will
+      turn(-135); // Align with floor goal
+      drive(3); // Might not need this again alignment
+      intake.spin(fwd, -12, volt); // Detake and score, might have to tune voltage number -12 is max power
+      wait(.2, seconds); // Give it a lil time to score
+      intake.spin(fwd, 12, volt); // Intake turned on
+      drive(-24); turn(-90); drive(24); turn(0); drive(20); turn(90); // Little will alignment,
+      // will be surprised if you can get this in time. Most important part is the low goal score so dont worry about this if you run out of time
+      
+      PB.set(true); drive_timeout = 1500; drive(15); // Drive into match loader and deploy LW
+      drive_kp = .9; drive_timeout = 500; drive(-4); drive(5); drive(-2); drive_timeout = 1500; drive_kp = .5; // intake match load balls
+      
+      // ending chunk is just scoring
+      wait(1.2, seconds);
+      drive_max_voltage = 7;
+      drive_with_target(-28, -90);
+      drive_max_voltage = 12;
+      intake.spin(fwd, -12, volt);
+      wait(.1, seconds);
+      outake.spin(fwd, 12, volt);
+      intake.spin(fwd, 12, volt);
+
       break;
 
     case 11: //Red middle experimental
